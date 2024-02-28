@@ -34,8 +34,9 @@ typedef struct _context {
     synapse_msgs_Status status;
     synapse_msgs_Actuators actuators;
     synapse_msgs_Actuators actuators_manual;
+    synapse_msgs_Vector3 rates_sp;
     synapse_msgs_Imu imu;
-    struct zros_sub sub_status, sub_cmd_vel, sub_actuators_manual, sub_imu;
+    struct zros_sub sub_status, sub_cmd_vel, sub_rates_sp, sub_imu, sub_actuators_manual;
     struct zros_pub pub_actuators;
 } context;
 
@@ -47,7 +48,7 @@ static context g_ctx = {
     .actuators_manual = synapse_msgs_Actuators_init_default,
     .sub_status = {},
     .sub_cmd_vel = {},
-    .sub_actuators_manual = {},
+    .sub_rates_sp = {},
     .sub_imu = {},
     .pub_actuators = {},
 };
@@ -58,6 +59,8 @@ static void init_rdd2_vel(context* ctx)
     zros_node_init(&ctx->node, "rdd2_velocity");
     zros_sub_init(&ctx->sub_cmd_vel, &ctx->node, &topic_cmd_vel, &ctx->cmd_vel, 10);
     zros_sub_init(&ctx->sub_status, &ctx->node, &topic_status, &ctx->status, 10);
+    zros_sub_init(&ctx->sub_rates_sp, &ctx->node,
+        &topic_rates_sp, &ctx->rates_sp, 10);
     zros_sub_init(&ctx->sub_actuators_manual, &ctx->node,
         &topic_actuators_manual, &ctx->actuators_manual, 10);
     zros_sub_init(&ctx->sub_imu, &ctx->node,
@@ -82,21 +85,16 @@ static void update_cmd_vel(context* ctx)
     }
     */
 
-    static const double deg2rad = M_PI / 180.0;
-    double roll_rate_cmd = 60 * deg2rad * ctx->actuators_manual.normalized[0];
-    double pitch_rate_cmd = 60 * deg2rad * ctx->actuators_manual.normalized[1];
-    double yaw_rate_cmd = 60 * deg2rad * ctx->actuators_manual.normalized[2];
-    double thrust_cmd = ctx->actuators_manual.normalized[3];
+    static const double kp_x = 0.013;
+    static const double kp_y = 0.013;
+    static const double kp_z = 0.1;
 
-    static const double kp_roll = 0.013;
-    static const double kp_pitch = 0.013;
-    static const double kp_yaw = 0.1;
+    double mx = kp_x * (ctx->rates_sp.x - ctx->imu.angular_velocity.x);
+    double my = kp_y * (ctx->rates_sp.y + ctx->imu.angular_velocity.y);
+    double mz = kp_z * (ctx->rates_sp.z + ctx->imu.angular_velocity.z);
+    double thrust = ctx->actuators_manual.normalized[3];
 
-    double roll = kp_roll * (roll_rate_cmd - ctx->imu.angular_velocity.x);
-    double pitch = kp_pitch * (pitch_rate_cmd + ctx->imu.angular_velocity.y);
-    double yaw = kp_yaw * (yaw_rate_cmd + ctx->imu.angular_velocity.z);
-
-    rdd2_set_actuators(&ctx->actuators, roll, pitch, yaw, thrust_cmd);
+    rdd2_set_actuators(&ctx->actuators, mx, my, mz, thrust);
 }
 
 static void stop(context* ctx)

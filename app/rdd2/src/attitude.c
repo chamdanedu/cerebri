@@ -34,8 +34,10 @@ typedef struct _context {
     synapse_msgs_Status status;
     synapse_msgs_Actuators actuators_manual;
     synapse_msgs_Odometry estimator_odometry;
+    synapse_msgs_Vector3 rates_sp;
     struct zros_sub sub_status, sub_actuators_manual, sub_estimator_odometry;
     struct zros_pub pub_cmd_vel;
+    struct zros_pub pub_rates_sp;
 } context;
 
 static context g_ctx = {
@@ -47,11 +49,13 @@ static context g_ctx = {
     },
     .status = synapse_msgs_Status_init_default,
     .actuators_manual = synapse_msgs_Actuators_init_default,
+    .rates_sp = synapse_msgs_Vector3_init_default,
     .estimator_odometry = synapse_msgs_Odometry_init_default,
     .sub_status = {},
     .sub_actuators_manual = {},
     .sub_estimator_odometry = {},
     .pub_cmd_vel = {},
+    .pub_rates_sp = {},
 };
 
 static void init_rdd2_vel(context* ctx)
@@ -64,6 +68,7 @@ static void init_rdd2_vel(context* ctx)
     zros_sub_init(&ctx->sub_estimator_odometry, &ctx->node,
         &topic_estimator_odometry, &ctx->estimator_odometry, 100);
     zros_pub_init(&ctx->pub_cmd_vel, &ctx->node, &topic_cmd_vel, &ctx->cmd_vel);
+    zros_pub_init(&ctx->pub_rates_sp, &ctx->node, &topic_rates_sp, &ctx->rates_sp);
 }
 
 // computes rc_input from V, omega
@@ -89,14 +94,20 @@ static void update_cmd_vel(context* ctx)
     res[0] = omega;
     CASADI_FUNC_CALL(attitude_error);
 
-    LOG_INF("q: %10.4f %10.4f %10.4f %10.4f", q[0], q[1], q[2], q[3]);
-    LOG_INF("euler: %10.4f %10.4f %10.4f", euler[0], euler[1], euler[2]);
-    LOG_INF("omega: %10.4f %10.4f %10.4f", omega[0], omega[1], omega[2]);
+    //LOG_INF("q: %10.4f %10.4f %10.4f %10.4f", q[0], q[1], q[2], q[3]);
+    //LOG_INF("euler: %10.4f %10.4f %10.4f", euler[0], euler[1], euler[2]);
+    //LOG_INF("omega: %10.4f %10.4f %10.4f", omega[0], omega[1], omega[2]);
 
     // set cmd_vel
     ctx->cmd_vel.angular.x = omega[0];
     ctx->cmd_vel.angular.y = omega[1];
     ctx->cmd_vel.angular.z = omega[2];
+
+    //publish
+    ctx->rates_sp.x = omega[0];
+    ctx->rates_sp.y = omega[1];
+    ctx->rates_sp.z = omega[2];
+    zros_pub_update(&ctx->pub_rates_sp);
 }
 
 static void stop(context* ctx)

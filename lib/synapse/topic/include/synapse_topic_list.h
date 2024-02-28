@@ -21,8 +21,8 @@
 #include <synapse_protobuf/status.pb.h>
 #include <synapse_protobuf/time.pb.h>
 #include <synapse_protobuf/twist.pb.h>
-#include <synapse_protobuf/wheel_odometry.pb.h>
 #include <synapse_protobuf/vector3.pb.h>
+#include <synapse_protobuf/wheel_odometry.pb.h>
 
 /********************************************************************
  * helper

@@ -8,6 +8,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <synapse_protobuf/vector3.pb.h>
 #include <zros/private/zros_node_struct.h>
 #include <zros/private/zros_pub_struct.h>
 #include <zros/private/zros_sub_struct.h>
@@ -18,7 +19,6 @@
 #include <zros/zros_pub.h>
 #include <zros/zros_sub.h>
 #include <zros/zros_topic.h>
-#include <synapse_protobuf/vector3.pb.h>
 
 LOG_MODULE_REGISTER(zros_topic);
 

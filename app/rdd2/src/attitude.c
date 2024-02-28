@@ -94,16 +94,16 @@ static void update_cmd_vel(context* ctx)
     res[0] = omega;
     CASADI_FUNC_CALL(attitude_error);
 
-    //LOG_INF("q: %10.4f %10.4f %10.4f %10.4f", q[0], q[1], q[2], q[3]);
-    //LOG_INF("euler: %10.4f %10.4f %10.4f", euler[0], euler[1], euler[2]);
-    //LOG_INF("omega: %10.4f %10.4f %10.4f", omega[0], omega[1], omega[2]);
+    // LOG_INF("q: %10.4f %10.4f %10.4f %10.4f", q[0], q[1], q[2], q[3]);
+    // LOG_INF("euler: %10.4f %10.4f %10.4f", euler[0], euler[1], euler[2]);
+    // LOG_INF("omega: %10.4f %10.4f %10.4f", omega[0], omega[1], omega[2]);
 
     // set cmd_vel
     ctx->cmd_vel.angular.x = omega[0];
     ctx->cmd_vel.angular.y = omega[1];
     ctx->cmd_vel.angular.z = omega[2];
 
-    //publish
+    // publish
     ctx->rates_sp.x = omega[0];
     ctx->rates_sp.y = omega[1];
     ctx->rates_sp.z = omega[2];

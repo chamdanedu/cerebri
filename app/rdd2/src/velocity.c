@@ -148,6 +148,9 @@ static void rdd2_velocity_entry_point(void* p0, void* p1, void* p2)
         if (zros_sub_update_available(&ctx->sub_imu)) {
             zros_sub_update(&ctx->sub_imu);
         }
+        if (zros_sub_update_available(&ctx->sub_rates_sp)) {
+            zros_sub_update(&ctx->sub_rates_sp);
+        }
 
         // handle modes
         if (rc < 0) {

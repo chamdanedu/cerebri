@@ -79,9 +79,9 @@ static void update_cmd_vel(context* ctx)
     double q[4];
     double omega[3];
     double euler[3];
-    euler[0] = ctx->actuators_manual.normalized[0];
+    euler[0] = ctx->actuators_manual.normalized[2];
     euler[1] = ctx->actuators_manual.normalized[1];
-    euler[2] = ctx->actuators_manual.normalized[2];
+    euler[2] = ctx->actuators_manual.normalized[0];
 
     q[0] = ctx->estimator_odometry.pose.pose.orientation.w;
     q[1] = ctx->estimator_odometry.pose.pose.orientation.x;

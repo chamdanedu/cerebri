@@ -103,11 +103,9 @@ static void update_cmd_vel(context* ctx)
     ctx->cmd_vel.angular.y = omega[1];
     ctx->cmd_vel.angular.z = omega[2];
 
-    // publish
     ctx->rates_sp.x = omega[0];
     ctx->rates_sp.y = omega[1];
     ctx->rates_sp.z = omega[2];
-    zros_pub_update(&ctx->pub_rates_sp);
 }
 
 static void stop(context* ctx)
@@ -167,7 +165,8 @@ static void rdd2_attitude_entry_point(void* p0, void* p1, void* p2)
         }
 
         // publish
-        // zros_pub_update(&ctx->pub_cmd_vel);
+        //zros_pub_update(&ctx->pub_cmd_vel);
+        zros_pub_update(&ctx->pub_rates_sp);
     }
 }
 

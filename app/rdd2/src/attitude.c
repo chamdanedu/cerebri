@@ -165,7 +165,7 @@ static void rdd2_attitude_entry_point(void* p0, void* p1, void* p2)
         }
 
         // publish
-        //zros_pub_update(&ctx->pub_cmd_vel);
+        // zros_pub_update(&ctx->pub_cmd_vel);
         zros_pub_update(&ctx->pub_rates_sp);
     }
 }

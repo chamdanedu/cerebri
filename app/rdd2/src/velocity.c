@@ -172,7 +172,7 @@ static void rdd2_velocity_entry_point(void* p0, void* p1, void* p2)
             // ctx->actuators = ctx->actuators_manual;
             update_cmd_vel_manual(ctx);
         } else if (ctx->status.mode == synapse_msgs_Status_Mode_MODE_CMD_VEL) {
-            LOG_DBG("autoo level mode");
+            LOG_DBG("auto level mode");
             // ctx->actuators = ctx->actuators_manual;
             update_cmd_vel_auto_level(ctx);
         } else {

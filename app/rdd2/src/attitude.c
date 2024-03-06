@@ -91,8 +91,8 @@ static void update_rates_sp(context* ctx)
     // set rate setpoints
 
     ctx->rates_sp.x = 0 * omega[0];
-    ctx->rates_sp.y = 0 *omega[1];
-    ctx->rates_sp.z = 0 *omega[2];
+    ctx->rates_sp.y = 0 * omega[1];
+    ctx->rates_sp.z = 0 * omega[2];
 }
 
 static void stop(context* ctx)

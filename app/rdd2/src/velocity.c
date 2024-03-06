@@ -88,10 +88,13 @@ static void update_cmd_vel(context* ctx)
     static const double kp_x = 0.013;
     static const double kp_y = 0.013;
     static const double kp_z = 0.1;
+    static const double ff_x = 0;
+    static const double ff_y = 0;
+    static const double ff_z = 0;
 
-    double mx = kp_x * (ctx->rates_sp.x - ctx->imu.angular_velocity.x);
-    double my = kp_y * (ctx->rates_sp.y + ctx->imu.angular_velocity.y);
-    double mz = kp_z * (ctx->rates_sp.z + ctx->imu.angular_velocity.z);
+    double mx = kp_x * (ctx->rates_sp.x - ctx->imu.angular_velocity.x) + ff_x;
+    double my = kp_y * (ctx->rates_sp.y + ctx->imu.angular_velocity.y) + ff_y;
+    double mz = kp_z * (ctx->rates_sp.z + ctx->imu.angular_velocity.z) + ff_z;
     double thrust = ctx->actuators_manual.normalized[3];
 
     rdd2_set_actuators(&ctx->actuators, mx, my, mz, thrust);

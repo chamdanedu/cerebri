@@ -69,22 +69,27 @@ static void init_rdd2_vel(context* ctx)
 }
 
 // computes rc_input from V, omega
-static void update_cmd_vel(context* ctx)
+static void update_cmd_vel_manual(context* ctx)
 {
-    /*
-    CASADI_FUNC_ARGS(ackermann_steering);
-    args[0] = &ctx->wheel_base;
-    args[1] = &omega;
-    args[2] = &V;
-    res[0] = &delta;
-    CASADI_FUNC_CALL(ackermann_steering);
+    static const double deg2rad = M_PI / 180.0;
+    double roll_rate_cmd = 60 * deg2rad * -ctx->actuators_manual.normalized[0];
+    double pitch_rate_cmd = 60 * deg2rad * -ctx->actuators_manual.normalized[1];
+    double yaw_rate_cmd = 60 * deg2rad * -ctx->actuators_manual.normalized[2];
+    double thrust_cmd = ctx->actuators_manual.normalized[3];
 
-    omega_fwd = V / ctx->wheel_radius;
-    if (fabs(V) > 0.01) {
-        turn_angle = delta;
-    }
-    */
+    static const double kp_roll = 0.013;
+    static const double kp_pitch = 0.013;
+    static const double kp_yaw = 0.1;
 
+    double roll = kp_roll * (roll_rate_cmd - ctx->imu.angular_velocity.x);
+    double pitch = kp_pitch * (pitch_rate_cmd + ctx->imu.angular_velocity.y);
+    double yaw = kp_yaw * (yaw_rate_cmd + ctx->imu.angular_velocity.z);
+
+    rdd2_set_actuators(&ctx->actuators, roll, pitch, yaw, thrust_cmd);
+}
+
+static void update_cmd_vel_auto_level(context* ctx)
+{
     static const double kp_x = 0.013;
     static const double kp_y = 0.013;
     static const double kp_z = 0.1;
@@ -118,7 +123,7 @@ static void rdd2_velocity_entry_point(void* p0, void* p1, void* p2)
         synapse_msgs_Status_Mode mode = ctx->status.mode;
 
         int rc = 0;
-        if (mode == synapse_msgs_Status_Mode_MODE_MANUAL) {
+        if (mode == synapse_msgs_Status_Mode_MODE_MANUAL || mode == synapse_msgs_Status_Mode_MODE_CMD_VEL) {
             struct k_poll_event events[] = {
                 *zros_sub_get_event(&ctx->sub_actuators_manual),
             };
@@ -165,7 +170,11 @@ static void rdd2_velocity_entry_point(void* p0, void* p1, void* p2)
         } else if (ctx->status.mode == synapse_msgs_Status_Mode_MODE_MANUAL) {
             LOG_DBG("manual mode");
             // ctx->actuators = ctx->actuators_manual;
-            update_cmd_vel(ctx);
+            update_cmd_vel_manual(ctx);
+        } else if (ctx->status.mode == synapse_msgs_Status_Mode_MODE_CMD_VEL) {
+            LOG_DBG("autoo level mode");
+            // ctx->actuators = ctx->actuators_manual;
+            update_cmd_vel_auto_level(ctx);
         } else {
         }
 

@@ -71,7 +71,7 @@ static void update_rates_sp(context* ctx)
     double omega[3];
     double yaw_sp = ctx->actuators_manual.normalized[2];
     double pitch_sp = ctx->actuators_manual.normalized[1];
-    double roll_sp = ctx->actuators_manual.normalized[0];
+    double roll_sp = -ctx->actuators_manual.normalized[0];
 
     q[0] = ctx->estimator_odometry.pose.pose.orientation.w;
     q[1] = ctx->estimator_odometry.pose.pose.orientation.x;
@@ -90,9 +90,9 @@ static void update_rates_sp(context* ctx)
 
     // set rate setpoints
 
-    ctx->rates_sp.x = 0 * omega[0];
-    ctx->rates_sp.y = 0 *omega[1];
-    ctx->rates_sp.z = 0 *omega[2];
+    ctx->rates_sp.x = 2*omega[0];
+    ctx->rates_sp.y = -2*omega[1];
+    ctx->rates_sp.z = -2*omega[2];
 }
 
 static void stop(context* ctx)
